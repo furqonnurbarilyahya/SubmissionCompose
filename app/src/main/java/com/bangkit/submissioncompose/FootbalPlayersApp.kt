@@ -5,8 +5,10 @@ import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -19,8 +21,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
@@ -37,17 +42,19 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
+import com.bangkit.submissioncompose.data.PlayerRepository
 import com.bangkit.submissioncompose.model.FootballPlayersData
 import com.bangkit.submissioncompose.ui.theme.SubmissionComposeTheme
 import kotlinx.coroutines.launch
+import androidx.lifecycle.viewmodel.compose.viewModel
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FootballPlayersApp(
-    modifier: Modifier = Modifier
+    modifier: Modifier = Modifier,
+    viewModel: FootballPlayerViewModel = viewModel(factory = ViewModelFactory(PlayerRepository()))
 ) {
-    val groupedHeroes = FootballPlayersData.players
-        .sortedBy { it.name }
-        .groupBy { it.name[0] }
+    val groupedPlayers by viewModel.groupedPlayers.collectAsState()
 
     Box (modifier = modifier) {
         val scope = rememberCoroutineScope()
@@ -56,15 +63,20 @@ fun FootballPlayersApp(
             derivedStateOf { listState.firstVisibleItemIndex > 0 }
         }
         LazyColumn (
-            state = listState
+            state = listState,
+            contentPadding = PaddingValues(bottom = 80.dp)
         ) {
-
-            items(FootballPlayersData.players, key = { it.id }) { player ->
-                PlayerListItem(
-                    name = player.name,
-                    photoUrl = player.photoUrl,
-                    modifier = Modifier.fillMaxWidth()
-                )
+            groupedPlayers.forEach { (initial, players) ->
+                stickyHeader {
+                    CharacterHeader(initial)
+                }
+                items(players, key = { it.id }) { player ->
+                    PlayerListItem(
+                        name = player.name,
+                        photoUrl = player.photoUrl,
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                }
             }
         }
         AnimatedVisibility(
@@ -78,7 +90,7 @@ fun FootballPlayersApp(
             ScrollToTopButton(
                 onClick = {
                     scope.launch {
-                        listState.scrollToItem(index = 0)
+                        listState.animateScrollToItem(index = 0)
                     }
                 }
             )
@@ -132,26 +144,26 @@ fun ScrollToTopButton(
     }
 }
 
-//@Composable
-//fun CharacterHead(
-//    char: Char,
-//    modifier: Modifier = Modifier
-//) {
-//    Surface (
-//        color = MaterialTheme.colorScheme.primary,
-//        modifier = modifier
-//    ) {
-//        Text(
-//            text = char.toString(),
-//            fontWeight = FontWeight.Black,
-//            color = Color.White,
-//            textAlign = TextAlign.Center,
-//            modifier = Modifier
-//                .fillMaxWidth()
-//                .padding(8.dp)
-//        )
-//    }
-//}
+@Composable
+fun CharacterHeader(
+    char: Char,
+    modifier: Modifier = Modifier
+) {
+    Surface (
+        color = MaterialTheme.colorScheme.primary,
+        modifier = modifier
+    ) {
+        Text(
+            text = char.toString(),
+            fontWeight = FontWeight.Black,
+            color = Color.White,
+            textAlign = TextAlign.Center,
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(8.dp)
+        )
+    }
+}
 
 @Preview(showBackground = true, showSystemUi = true, device = Devices.PIXEL_3A)
 @Composable

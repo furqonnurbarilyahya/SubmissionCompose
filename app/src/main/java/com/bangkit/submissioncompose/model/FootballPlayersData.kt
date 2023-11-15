@@ -102,10 +102,5 @@ object FootballPlayersData {
             "Marcus Rashford",
             "https://upload.wikimedia.org/wikipedia/commons/5/5e/Press_Tren_CSKA_-_MU_%283%29.jpg"
         ),
-        FootbalPlayer(
-            "21",
-            "",
-            ""
-        ),
     )
 }
