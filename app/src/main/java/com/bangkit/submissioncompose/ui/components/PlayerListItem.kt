@@ -53,6 +53,6 @@ fun PlayerListItem(
 @Preview(showBackground = true)
 fun RewardItemPreview() {
     SubmissionComposeTheme {
-        PlayerListItem("Wayne oney", "")
+        PlayerListItem("Wayne Rooney", "")
     }
 }
