@@ -1,16 +1,19 @@
 package com.bangkit.submissioncompose
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.core.tween
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
 import androidx.compose.animation.slideInVertically
 import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.ExperimentalFoundationApi
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -19,6 +22,8 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowUp
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -42,19 +47,20 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
-import com.bangkit.submissioncompose.data.PlayerRepository
-import com.bangkit.submissioncompose.model.FootballPlayersData
+import com.bangkit.submissioncompose.data.FootballPlayerRepository
 import com.bangkit.submissioncompose.ui.theme.SubmissionComposeTheme
 import kotlinx.coroutines.launch
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.compose.material3.SearchBar
 
 @OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FootballPlayersApp(
     modifier: Modifier = Modifier,
-    viewModel: FootballPlayerViewModel = viewModel(factory = ViewModelFactory(PlayerRepository()))
+    viewModel: FootballPlayerViewModel = viewModel(factory = ViewModelFactory(FootballPlayerRepository()))
 ) {
     val groupedPlayers by viewModel.groupedPlayers.collectAsState()
+    val query by viewModel.query
 
     Box (modifier = modifier) {
         val scope = rememberCoroutineScope()
@@ -66,6 +72,13 @@ fun FootballPlayersApp(
             state = listState,
             contentPadding = PaddingValues(bottom = 80.dp)
         ) {
+            item {
+                SearchBar(
+                    query = query,
+                    onQueryChange = viewModel::search,
+                    modifier = Modifier.background(MaterialTheme.colorScheme.primary)
+                )
+            }
             groupedPlayers.forEach { (initial, players) ->
                 stickyHeader {
                     CharacterHeader(initial)
@@ -74,7 +87,9 @@ fun FootballPlayersApp(
                     PlayerListItem(
                         name = player.name,
                         photoUrl = player.photoUrl,
-                        modifier = Modifier.fillMaxWidth()
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .animateItemPlacement(tween(durationMillis = 200))
                     )
                 }
             }
@@ -162,6 +177,39 @@ fun CharacterHeader(
                 .fillMaxWidth()
                 .padding(8.dp)
         )
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun SearchBar(
+    query: String,
+    onQueryChange: (String) -> Unit,
+    modifier: Modifier = Modifier
+) {
+    SearchBar(
+        query = query,
+        onQueryChange = onQueryChange,
+        onSearch = {},
+        active = false,
+        onActiveChange = {},
+        leadingIcon = {
+            Icon(
+                imageVector = Icons.Default.Search,
+                contentDescription = null,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant
+            )
+        },
+        placeholder = {
+            Text(stringResource(R.string.search_player))
+        },
+        shape = MaterialTheme.shapes.medium,
+        modifier = modifier
+            .padding(16.dp)
+            .fillMaxWidth()
+            .heightIn(min = 48.dp)
+    ) {
+
     }
 }
 
