@@ -1,241 +1,113 @@
 package com.bangkit.submissioncompose
 
-import androidx.compose.animation.AnimatedVisibility
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
-import androidx.compose.animation.slideInVertically
-import androidx.compose.animation.slideOutVertically
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.KeyboardArrowUp
-import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.FilledIconButton
+import androidx.compose.material.icons.filled.AccountCircle
+import androidx.compose.material.icons.filled.Favorite
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.SearchBar
-import androidx.compose.material3.Surface
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Alignment.Companion.CenterVertically
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.stringResource
-import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
-import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewmodel.compose.viewModel
-import coil.compose.AsyncImage
-import com.bangkit.submissioncompose.data.FootballPlayerRepository
-import com.bangkit.submissioncompose.ui.ViewModelFactory
+import androidx.navigation.NavGraph.Companion.findStartDestination
+import androidx.navigation.NavHostController
+import androidx.navigation.compose.NavHost
+import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
+import androidx.navigation.compose.rememberNavController
+import com.bangkit.submissioncompose.ui.screen.about.AboutScreen
+import com.bangkit.submissioncompose.ui.screen.favorite.FavoriteScreen
+import com.bangkit.submissioncompose.ui.screen.home.HomeScreen
+import com.bangkit.submissioncompose.ui.screen.navigation.NavigationItem
+import com.bangkit.submissioncompose.ui.screen.navigation.Screen
 import com.bangkit.submissioncompose.ui.theme.SubmissionComposeTheme
-import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun FootballPlayersApp(
     modifier: Modifier = Modifier,
-    viewModel: FootballPlayerViewModel = viewModel(factory = ViewModelFactory(FootballPlayerRepository()))
+    navController: NavHostController = rememberNavController(),
 ) {
-    val groupedPlayers by viewModel.groupedPlayers.collectAsState()
-    val query by viewModel.query
-
-    Box (modifier = modifier) {
-        val scope = rememberCoroutineScope()
-        val listState = rememberLazyListState()
-        val showButton: Boolean by remember {
-            derivedStateOf { listState.firstVisibleItemIndex > 0 }
-        }
-        LazyColumn (
-            state = listState,
-            contentPadding = PaddingValues(bottom = 80.dp)
+    Scaffold(
+        bottomBar = {
+            BottomBar(navController)
+        },
+        modifier = modifier
+    ) { innerPadding ->
+        NavHost(
+            navController = navController,
+            startDestination = Screen.Home.route,
+            modifier = Modifier.padding(innerPadding)
         ) {
-            item {
-                Row (
-                    modifier = Modifier
-                        .background(MaterialTheme.colorScheme.primary)
-                        .padding(all = 10.dp)
-                ) {
-                    SearchBar(
-                        query = query,
-                        onQueryChange = viewModel::search,
-                        modifier = Modifier
-                            .weight(1F, true)
-                    )
-                    IconButton(
-                        onClick = {
-
-                        },
-                        modifier = Modifier
-                            .align(CenterVertically),
-                    ) {
-                        Icon(
-                            imageVector = Icons.Default.Person,
-                            contentDescription = "about_page",
-                            tint = Color.White,
-                            modifier = Modifier.size(30.dp, 30.dp),
-                        )
-                    }
-
-                }
+            composable(Screen.Home.route) {
+                HomeScreen(navigateToDetail = { rewardId ->
+                    navController.navigate(Screen.DetailPlayer.createRoute(rewardId))
+                })
             }
-            groupedPlayers.forEach { (initial, players) ->
-                stickyHeader {
-                    CharacterHeader(initial)
-                }
-                items(players, key = { it.id }) { player ->
-                    PlayerListItem(
-                        name = player.name,
-                        photoUrl = player.photoUrl,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .animateItemPlacement(tween(durationMillis = 200))
-                    )
-                }
+            composable(Screen.Favorite.route) {
+                FavoriteScreen()
+            }
+            composable(Screen.About.route) {
+                AboutScreen()
             }
         }
-        AnimatedVisibility(
-            visible = showButton,
-            enter = fadeIn() + slideInVertically(),
-            exit = fadeOut() + slideOutVertically(),
-            modifier = Modifier
-                .padding(bottom = 30.dp)
-                .align(Alignment.BottomCenter)
-        ) {
-            ScrollToTopButton(
+    }
+}
+
+@Composable
+private fun BottomBar(
+    navController: NavHostController,
+    modifier: Modifier = Modifier
+) {
+    NavigationBar(
+        modifier = modifier,
+    ) {
+        val navBackStackEntry by navController.currentBackStackEntryAsState()
+        val currentRoute = navBackStackEntry?.destination?.route
+        val navigationItems = listOf(
+            NavigationItem(
+                title = stringResource(R.string.menu_home),
+                icon = Icons.Default.Home,
+                screen = Screen.Home
+            ),
+            NavigationItem(
+                title = stringResource(R.string.menu_favorite),
+                icon = Icons.Default.Favorite,
+                screen = Screen.Favorite
+            ),
+            NavigationItem(
+                title = stringResource(R.string.menu_profile),
+                icon = Icons.Default.AccountCircle,
+                screen = Screen.About
+            ),
+        )
+        navigationItems.map { item ->
+            NavigationBarItem(
+                icon = {
+                    Icon(
+                        imageVector = item.icon,
+                        contentDescription = item.title
+                    )
+                },
+                label = { Text(item.title) },
+                selected = currentRoute == item.screen.route,
                 onClick = {
-                    scope.launch {
-                        listState.animateScrollToItem(index = 0)
+                    navController.navigate(item.screen.route) {
+                        popUpTo(navController.graph.findStartDestination().id) {
+                            saveState = true
+                        }
+                        restoreState = true
+                        launchSingleTop = true
                     }
                 }
             )
         }
-    }
-}
-
-@Composable
-fun PlayerListItem(
-    name: String,
-    photoUrl: String,
-    modifier: Modifier = Modifier
-) {
-    Row (
-        verticalAlignment = CenterVertically,
-        modifier = modifier.clickable {  }
-    ) {
-        AsyncImage(
-            model = photoUrl,
-            contentDescription = null,
-            contentScale = ContentScale.Crop,
-            modifier = Modifier
-                .padding(8.dp)
-                .size(65.dp)
-                .clip(CircleShape)
-        )
-        Text(
-            text = name,
-            fontWeight = FontWeight.Medium,
-            modifier = Modifier
-                .fillMaxWidth()
-                .weight(1f)
-                .padding(start = 16.dp)
-        )
-    }
-}
-
-@Composable
-fun ScrollToTopButton(
-    onClick: () -> Unit,
-    modifier: Modifier = Modifier
-) {
-    FilledIconButton(
-        onClick = onClick,
-        modifier = modifier
-    ) {
-        Icon(
-            imageVector = Icons.Filled.KeyboardArrowUp,
-            contentDescription = stringResource(R.string.scroll_to_top)
-        )
-    }
-}
-
-@Composable
-fun CharacterHeader(
-    char: Char,
-    modifier: Modifier = Modifier
-) {
-    Surface (
-        color = MaterialTheme.colorScheme.primary,
-        modifier = modifier
-    ) {
-        Text(
-            text = char.toString(),
-            fontWeight = FontWeight.Black,
-            color = Color.White,
-            textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(8.dp)
-        )
-    }
-}
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun SearchBar(
-    query: String,
-    onQueryChange: (String) -> Unit,
-    modifier: Modifier = Modifier
-) {
-    SearchBar(
-        query = query,
-        onQueryChange = onQueryChange,
-        onSearch = {},
-        active = false,
-        onActiveChange = {},
-        leadingIcon = {
-            Icon(
-                imageVector = Icons.Default.Search,
-                contentDescription = null,
-                tint = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-        },
-        placeholder = {
-            Text(stringResource(R.string.search_player))
-        },
-        shape = MaterialTheme.shapes.medium,
-        modifier = modifier
-            .padding(16.dp)
-            .fillMaxWidth()
-            .heightIn(min = 48.dp)
-    ) {
-
     }
 }
 
