@@ -29,13 +29,3 @@ class FootballPlayerViewModel (private val footballPlayerRepository: FootballPla
 }
 
 
-class ViewModelFactory(private val footballPlayerRepository: FootballPlayerRepository) :
-    ViewModelProvider.NewInstanceFactory() {
-    @Suppress("UNCHECKED_CAST")
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(FootballPlayerViewModel::class.java)) {
-            return FootballPlayerViewModel(footballPlayerRepository) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class: " + modelClass.name)
-    }
-}
