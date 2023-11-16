@@ -17,19 +17,22 @@ class FootballPlayerRepository {
             }
         }
     }
-    fun getAllPlayers(): Flow<List<DetailPlayer>> {
-        return flowOf(listPlayer)
+
+    fun getPlayerById(playerId: Long): DetailPlayer {
+        return listPlayer.first {data ->
+            data.dataPlayer.id == playerId
+        }
     }
 
-    fun groupSortedPLayers(): Flow<Map<Char, List<FootbalPlayer>>> = flow {
-        val sortedPlayers = FootballPlayersData.players.sortedBy { it.name }
-        val groupedPlayers = sortedPlayers.groupBy { it.name[0] }
+    fun groupSortedPLayers(): Flow<Map<Char, List<DetailPlayer>>> = flow {
+        val sortedPlayers = listPlayer.sortedBy { it.dataPlayer.name }
+        val groupedPlayers = sortedPlayers.groupBy { it.dataPlayer.name[0] }
         emit(groupedPlayers)
     }
 
-    fun searchPlayers(query: String): Flow<List<FootbalPlayer>> = flow {
-          val filteredPlayers = FootballPlayersData.players.filter {
-              it.name.contains(query, ignoreCase = true)
+    fun searchPlayers(query: String): Flow<List<DetailPlayer>> = flow {
+          val filteredPlayers = listPlayer.filter {
+              it.dataPlayer.name.contains(query, ignoreCase = true)
           }
             emit(filteredPlayers)
     }

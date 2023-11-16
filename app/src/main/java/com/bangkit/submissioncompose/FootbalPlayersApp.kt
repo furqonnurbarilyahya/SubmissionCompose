@@ -18,11 +18,14 @@ import androidx.compose.ui.tooling.preview.Devices
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.navigation.NavGraph.Companion.findStartDestination
 import androidx.navigation.NavHostController
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.bangkit.submissioncompose.ui.screen.about.AboutScreen
+import com.bangkit.submissioncompose.ui.screen.detail.DetailPlayerScreen
 import com.bangkit.submissioncompose.ui.screen.favorite.FavoriteScreen
 import com.bangkit.submissioncompose.ui.screen.home.HomeScreen
 import com.bangkit.submissioncompose.ui.screen.navigation.NavigationItem
@@ -32,23 +35,33 @@ import com.bangkit.submissioncompose.ui.theme.SubmissionComposeTheme
 @Composable
 fun FootballPlayersApp(
     modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController(),
+    navController: NavHostController = rememberNavController()
 ) {
     Scaffold(
+        modifier = modifier,
         bottomBar = {
             BottomBar(navController)
         },
-        modifier = modifier
     ) { innerPadding ->
         NavHost(
             navController = navController,
             startDestination = Screen.Home.route,
             modifier = Modifier.padding(innerPadding)
         ) {
-            composable(Screen.Home.route) {
-                HomeScreen(navigateToDetail = { rewardId ->
-                    navController.navigate(Screen.DetailPlayer.createRoute(rewardId))
+            composable(route = Screen.Home.route) {
+                HomeScreen(navigateToDetail = { playerId ->
+                    navController.navigate(Screen.DetailPlayer.createRoute(playerId))
                 })
+            }
+            composable(
+                route = Screen.DetailPlayer.route,
+                arguments = listOf(navArgument("playerId") { type = NavType.LongType })
+            ) {
+                val playerId = it.arguments?.getLong("playerId") ?: -1L
+                DetailPlayerScreen(
+                    playerId = playerId,
+                    navigateBack = { navController.navigateUp() }
+                )
             }
             composable(Screen.Favorite.route) {
                 FavoriteScreen()
