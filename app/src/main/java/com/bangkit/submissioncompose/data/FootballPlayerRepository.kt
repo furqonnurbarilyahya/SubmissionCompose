@@ -1,11 +1,9 @@
 package com.bangkit.submissioncompose.data
 
 import com.bangkit.submissioncompose.model.DetailPlayer
-import com.bangkit.submissioncompose.model.FootbalPlayer
 import com.bangkit.submissioncompose.model.FootballPlayersData
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import kotlinx.coroutines.flow.flowOf
 
 class FootballPlayerRepository {
     private val listPlayer = mutableListOf<DetailPlayer>()

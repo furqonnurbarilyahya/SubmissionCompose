@@ -1,7 +1,5 @@
 package com.bangkit.submissioncompose.ui.screen.home
 
-import android.content.Context
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -14,14 +12,11 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
-import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bangkit.submissioncompose.di.Injection
 import com.bangkit.submissioncompose.model.DetailPlayer
-import com.bangkit.submissioncompose.model.FootbalPlayer
 import com.bangkit.submissioncompose.ui.ViewModelFactory
 import com.bangkit.submissioncompose.ui.common.UiState
 import com.bangkit.submissioncompose.ui.components.PlayerListItem

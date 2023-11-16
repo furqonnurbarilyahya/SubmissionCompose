@@ -53,6 +53,8 @@ class FootbalPlayersAppTest {
         navController.assertCurrentRouteName(Screen.Favorite.route)
         composeTestRule.onNodeWithText(text = "Profil").performClick()
         navController.assertCurrentRouteName(Screen.About.route)
+        composeTestRule.onNodeWithText(text = "Home").performClick()
+        navController.assertCurrentRouteName(Screen.Home.route)
     }
 
     @Test

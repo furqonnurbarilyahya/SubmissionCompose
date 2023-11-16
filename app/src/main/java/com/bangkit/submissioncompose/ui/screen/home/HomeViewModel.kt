@@ -4,7 +4,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bangkit.submissioncompose.data.FootballPlayerRepository
 import com.bangkit.submissioncompose.model.DetailPlayer
-import com.bangkit.submissioncompose.model.FootbalPlayer
 import com.bangkit.submissioncompose.ui.common.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
