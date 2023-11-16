@@ -3,6 +3,7 @@ package com.bangkit.submissioncompose.ui.screen.home
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.bangkit.submissioncompose.data.FootballPlayerRepository
+import com.bangkit.submissioncompose.model.DetailPlayer
 import com.bangkit.submissioncompose.model.FootbalPlayer
 import com.bangkit.submissioncompose.ui.common.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -14,11 +15,11 @@ class HomeViewModel (private val footballPlayerRepository: FootballPlayerReposit
     private val _query = MutableStateFlow("")
     val query: StateFlow<String> get() = _query
 
-    private val _searchResult = MutableStateFlow<List<FootbalPlayer>>(emptyList())
-    val searchResult: StateFlow<List<FootbalPlayer>> get() = _searchResult
+    private val _searchResult = MutableStateFlow<List<DetailPlayer>>(emptyList())
+    val searchResult: StateFlow<List<DetailPlayer>> get() = _searchResult
 
-    private val _uiState: MutableStateFlow<UiState<Map<Char, List<FootbalPlayer>>>> = MutableStateFlow(UiState.Loading)
-    val uiState: StateFlow<UiState<Map<Char, List<FootbalPlayer>>>>
+    private val _uiState: MutableStateFlow<UiState<Map<Char, List<DetailPlayer>>>> = MutableStateFlow(UiState.Loading)
+    val uiState: StateFlow<UiState<Map<Char, List<DetailPlayer>>>>
         get() = _uiState
 
     fun getAllPlayers() {

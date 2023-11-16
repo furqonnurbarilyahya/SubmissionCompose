@@ -4,5 +4,7 @@
     <string name="search_player">Cari pemain</string>
     <string name="menu_home">Home</string>
     <string name="menu_favorite">Favorit</string>
-    <string name="menu_profile">About</string>
+    <string name="menu_detail">Detail</string>
+    <string name="menu_profile">Profil</string>
+    <string name="back">Back</string>
 </resources>

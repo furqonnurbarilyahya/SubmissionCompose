@@ -1,5 +1,7 @@
 package com.bangkit.submissioncompose.ui.screen.home
 
+import android.content.Context
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
@@ -12,10 +14,13 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.bangkit.submissioncompose.di.Injection
+import com.bangkit.submissioncompose.model.DetailPlayer
 import com.bangkit.submissioncompose.model.FootbalPlayer
 import com.bangkit.submissioncompose.ui.ViewModelFactory
 import com.bangkit.submissioncompose.ui.common.UiState
@@ -63,11 +68,10 @@ fun HomeScreen(
     }
 }
 
-
 @Composable
 fun HomeContent (
-    groupedPlayers: Map<Char, List<FootbalPlayer>>,
-    listPlayer: List<FootbalPlayer>,
+    groupedPlayers: Map<Char, List<DetailPlayer>>,
+    listPlayer: List<DetailPlayer>,
     modifier: Modifier,
     navigateToDetail: (Long) -> Unit
 ) {
@@ -75,15 +79,15 @@ fun HomeContent (
         contentPadding = PaddingValues(bottom = 80.dp),
         modifier = modifier
             .fillMaxSize()
-            .testTag("RewardList")
+            .testTag("PlayersList")
     ) {
         if (listPlayer.isNotEmpty()) {
-            items(listPlayer, key = { it.id }) {
+            items(listPlayer, key = { it.dataPlayer.id }) {
                 PlayerListItem(
-                    name = it.name,
-                    photoUrl = it.photoUrl,
+                    name = it.dataPlayer.name,
+                    photoUrl = it.dataPlayer.photoUrl,
                     modifier = Modifier.clickable {
-                        navigateToDetail(it.id)
+                        navigateToDetail(it.dataPlayer.id)
                     }
                 )
             }
@@ -91,10 +95,10 @@ fun HomeContent (
             groupedPlayers.entries.forEach { (_, footballPlayer) ->
                 items(footballPlayer) {
                     PlayerListItem(
-                        name = it.name,
-                        photoUrl = it.photoUrl,
+                        name = it.dataPlayer.name,
+                        photoUrl = it.dataPlayer.photoUrl,
                         modifier = Modifier.clickable {
-                            navigateToDetail (it.id)
+                            navigateToDetail (it.dataPlayer.id)
                         }
                     )
                 }
